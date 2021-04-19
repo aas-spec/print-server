@@ -61,7 +61,7 @@ func (item *EventBus) ListenRedisQueue() {
 		log.Printf("New redis message to %s: %v", clientId, msg)
 		err = json.Unmarshal([]byte(msg.Payload), &message)
 		if err != nil {
-			log.Printf( "unable to unmarshal message %s", err)
+			log.Printf("unable to unmarshal message %s", err)
 			continue
 		}
 		// Получаю client id
@@ -113,6 +113,9 @@ func (item *EventBus) SendMessage(message *EventBusMessage, startEventClient *Ev
  Ping - раз в 30 секунд шлем сообщение всем клиентам, что бы поддерживать коннект
 */
 func (item *EventBus) Ping() {
+	// Для отладки - эмуляция сообщений печати
+	// pingMessage := GetTestPrintMessage("Test")
+	// pingMessage := GetTestDocumentMessage("Test")
 	pingMessage := EventBusMessage{CommandType: "PING", IsBroadcast: true}
 	for {
 		item.SendMessage(&pingMessage, nil)
@@ -127,11 +130,11 @@ func (item *EventBus) Run() {
 	for {
 		select {
 		case eventBusClient := <-item.Register:
-			log.Printf( "client %s registered", eventBusClient.ClientId)
+			log.Printf("client %s registered", eventBusClient.ClientId)
 			item.Clients[eventBusClient] = true
 		case eventBusClient := <-item.Unregister:
 			if _, ok := item.Clients[eventBusClient]; ok {
-				log.Printf( "client %s unregistered", eventBusClient.ClientId)
+				log.Printf("client %s unregistered", eventBusClient.ClientId)
 				delete(item.Clients, eventBusClient)
 			}
 		}
